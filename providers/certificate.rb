@@ -51,7 +51,6 @@ def create_certificate
     opts[:certificate_chain] = serialize @new_resource.certificate_chain_o unless @new_resource.certificate_chain_o.nil?
     puts "Chain: #{opts[:certificate_chain]}"
     @current_resource.client.upload_server_certificate opts
-    @new_resource.updated_by_last_action true
     load_current_resource
 end
 
