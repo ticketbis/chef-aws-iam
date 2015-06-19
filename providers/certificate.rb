@@ -19,6 +19,7 @@ end
 action :create do
   converge_by "Creating certificate '#{@new_resource.name}'" do
     create_certificate
+    load_current_resource
   end unless @current_resource.exists?
   fail "Cannot change path #{@new_resource.path} -> #{@current_resource.path}" unless @current_resource.path == @new_resource.path
   fail "Cannot change certificate body: #{@current_resource.certificate_body_o.inspect} -> #{@new_resource.certificate_body_o.inspect}" unless @current_resource.certificate_body_o == @new_resource.certificate_body_o
@@ -51,7 +52,6 @@ def create_certificate
     opts[:certificate_chain] = serialize @new_resource.certificate_chain_o unless @new_resource.certificate_chain_o.nil?
     puts "Chain: #{opts[:certificate_chain]}"
     @current_resource.client.upload_server_certificate opts
-    load_current_resource
 end
 
 private
