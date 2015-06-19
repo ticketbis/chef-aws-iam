@@ -7,9 +7,9 @@ attribute :path, kind_of: String, default: '/'
 attribute :private_key, kind_of: String, required: true
 attribute :certificate_body, kind_of: String, required: true
 attribute :certificate_chain, kind_of: [String, Array]
-attribute :region, kind_of: String, required: true
-attribute :access_key_id, kind_of: String, required: true
-attribute :secret_access_key, kind_of: String, required: true
+attribute :region, kind_of: String
+attribute :access_key_id, kind_of: String
+attribute :secret_access_key, kind_of: String
 
 attr_accessor :client, :certificate, :certificate_chain_o, :certificate_body_o
 
@@ -27,7 +27,7 @@ class OpenSSL::X509::Certificate
 end
 
 def after_created
-  begin 
+  begin
     self.certificate_body_o = OpenSSL::X509::Certificate.new certificate_body unless @certificate_body.nil?
   rescue
     fail 'Invalid certificate body'
@@ -41,8 +41,8 @@ def after_created
         r
       end
       )
-      # fail 'Do not concatenate certificates. Please, make an array' if 
-      #   certificate_chain.each_line.inject(0) do |res, line| 
+      # fail 'Do not concatenate certificates. Please, make an array' if
+      #   certificate_chain.each_line.inject(0) do |res, line|
       #     res += 1 if /BEGIN CERTIFICATE/ =~ line
       #     res
       #   end > 1
@@ -56,7 +56,7 @@ def after_created
       end
     else
       fail 'Unknown format for certificate chain'
-    end 
+    end
     self.certificate_chain_o = reorder_chain certificate_body_o, certificate_chain_o
   rescue OpenSSL::X509::CertificateError
     fail 'Invalid certificate body in chain'
@@ -96,6 +96,6 @@ def reorder_chain base, chain
       o += 1
     end
   end
-  fail "Certificate chain incomplete, cannot find parent for #{w.inspect} in position #{o}. Matched: #{res.inspect}" unless t.empty? 
+  fail "Certificate chain incomplete, cannot find parent for #{w.inspect} in position #{o}. Matched: #{res.inspect}" unless t.empty?
   res
 end

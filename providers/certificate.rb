@@ -1,12 +1,14 @@
+include Chef::AwsEc2::Credentials
+
 def whyrun_supported?
   true
 end
 
 use_inline_resources
 
-def load_current_resource 
+def load_current_resource
   @current_resource = Chef::Resource::AwsIamCertificate.new @new_resource.name
-  @current_resource.client = Chef::AwsEc2::get_iam_client @new_resource.access_key_id, @new_resource.secret_access_key, @new_resource.region
+  @current_resource.client = Chef::AwsEc2::get_iam_client aws_credentials, aws_region
   @current_resource.certificate = Chef::AwsEc2.get_certificate @current_resource.name, @current_resource.client
   unless @current_resource.certificate.nil?
     @current_resource.path(@current_resource.certificate.server_certificate_metadata.path)
@@ -26,7 +28,7 @@ action :create do
   fail "Cannot change certificate chain" unless @current_resource.certificate_chain_o == @new_resource.certificate_chain_o
 end
 
-action :recreate do   
+action :recreate do
   converge_by "Recreating certificate '#{@new_resource.name}' because it exists" do
     @current_resource.certificate.delete
     create_certificate
